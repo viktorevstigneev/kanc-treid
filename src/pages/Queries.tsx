@@ -10,80 +10,111 @@ import ResultTable from "../components/ResultTable";
 
 const Queries: React.FC = () => {
   const [activeQuery, setActiveQuery] = useState(13);
+  const [results, setResults] = useState<any[]>([]);
+  const [columns, setColumns] = useState<string[]>([]);
+  const [error, setError] = useState("");
 
   // Query 13
   const [hireDate, setHireDate] = useState("");
-  const [employees, setEmployees] = useState([]);
 
   // Query 16
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
-  const [invoices, setInvoices] = useState([]);
 
   // Query 19
   const [ownerName, setOwnerName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
-  const [bankAccounts, setBankAccounts] = useState([]);
 
   // Query 33
   const [productName, setProductName] = useState("");
   const [manufacturer, setManufacturer] = useState("");
-  const [warehouses, setWarehouses] = useState([]);
 
   // Query 37
   const [creditAmount, setCreditAmount] = useState("");
-  const [suppliers, setSuppliers] = useState([]);
 
-  const [error, setError] = useState("");
-
-  const handleQuery13 = () => {
+  const handleQuery13 = async () => {
     if (!hireDate) {
       setError("Введите дату");
       return;
     }
     setError("");
-    const results: any = query13(hireDate);
-    setEmployees(results);
+    try {
+      const data = query13(hireDate);
+      console.log("Query13 data:", data);
+      setResults(data);
+      setColumns(["fullName", "position", "hireDate"]);
+    } catch (err) {
+      setError("Ошибка: " + err);
+      setResults([]);
+    }
   };
 
-  const handleQuery16 = () => {
+  const handleQuery16 = async () => {
     if (!invoiceNumber || !totalAmount) {
       setError("Введите номер накладной и сумму");
       return;
     }
     setError("");
-    const results: any = query16(invoiceNumber, parseFloat(totalAmount));
-    setInvoices(results);
+    try {
+      const data = query16(invoiceNumber, parseFloat(totalAmount));
+      console.log("Query16 data:", data);
+      setResults(data);
+      setColumns(["number", "productName", "quantity", "total"]);
+    } catch (err) {
+      setError("Ошибка: " + err);
+      setResults([]);
+    }
   };
 
-  const handleQuery19 = () => {
+  const handleQuery19 = async () => {
     if (!ownerName || !accountNumber) {
       setError("Введите владельца и номер счета");
       return;
     }
     setError("");
-    const results: any = query19(ownerName, accountNumber);
-    setBankAccounts(results);
+    try {
+      const data = query19(ownerName, accountNumber);
+      console.log("Query19 data:", data);
+      setResults(data);
+      setColumns(["bankName", "number", "ownerName"]);
+    } catch (err) {
+      setError("Ошибка: " + err);
+      setResults([]);
+    }
   };
 
-  const handleQuery33 = () => {
+  const handleQuery33 = async () => {
     if (!productName || !manufacturer) {
       setError("Введите товар и изготовителя");
       return;
     }
     setError("");
-    const results: any = query33(productName, manufacturer);
-    setWarehouses(results);
+    try {
+      const data = query33(productName, manufacturer);
+      console.log("Query33 data:", data);
+      setResults(data);
+      setColumns(["id", "address", "productName", "quantity"]);
+    } catch (err) {
+      setError("Ошибка: " + err);
+      setResults([]);
+    }
   };
 
-  const handleQuery37 = () => {
+  const handleQuery37 = async () => {
     if (!creditAmount) {
       setError("Введите сумму кредита");
       return;
     }
     setError("");
-    const results: any = query37(parseFloat(creditAmount));
-    setSuppliers(results);
+    try {
+      const data = query37(parseFloat(creditAmount));
+      console.log("Query37 data:", data);
+      setResults(data);
+      setColumns(["id", "name", "creditAmount"]);
+    } catch (err) {
+      setError("Ошибка: " + err);
+      setResults([]);
+    }
   };
 
   const queries = [
@@ -106,9 +137,14 @@ const Queries: React.FC = () => {
             key={q.id}
             onClick={() => {
               setActiveQuery(q.id);
+              setResults([]);
               setError("");
             }}
-            className={`px-4 py-2 rounded-lg font-medium ${activeQuery === q.id ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+            className={`px-4 py-2 rounded-lg font-medium ${
+              activeQuery === q.id
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
           >
             {q.title}
           </button>
@@ -130,6 +166,7 @@ const Queries: React.FC = () => {
               value={hireDate}
               onChange={(e) => setHireDate(e.target.value)}
               className="flex-1 px-4 py-2 border rounded-lg"
+              placeholder="YYYY-MM-DD"
             />
             <button
               onClick={handleQuery13}
@@ -138,16 +175,6 @@ const Queries: React.FC = () => {
               Выполнить
             </button>
           </div>
-          {employees.length > 0 && (
-            <ResultTable
-              columns={["fullName", "position", "hireDate"]}
-              data={employees}
-              title="Результаты:"
-            />
-          )}
-          {employees.length === 0 && hireDate && (
-            <p className="text-gray-500">Сотрудники не найдены</p>
-          )}
         </div>
       )}
 
@@ -176,13 +203,6 @@ const Queries: React.FC = () => {
               Выполнить
             </button>
           </div>
-          {invoices.length > 0 && (
-            <ResultTable
-              columns={["number", "productName", "quantity", "total"]}
-              data={invoices}
-              title="Результаты:"
-            />
-          )}
         </div>
       )}
 
@@ -211,13 +231,6 @@ const Queries: React.FC = () => {
               Выполнить
             </button>
           </div>
-          {bankAccounts.length > 0 && (
-            <ResultTable
-              columns={["bankName", "number", "ownerName"]}
-              data={bankAccounts}
-              title="Результаты:"
-            />
-          )}
         </div>
       )}
 
@@ -246,13 +259,6 @@ const Queries: React.FC = () => {
               Выполнить
             </button>
           </div>
-          {warehouses.length > 0 && (
-            <ResultTable
-              columns={["id", "address", "productName", "quantity"]}
-              data={warehouses}
-              title="Результаты:"
-            />
-          )}
         </div>
       )}
 
@@ -274,13 +280,19 @@ const Queries: React.FC = () => {
               Выполнить
             </button>
           </div>
-          {suppliers.length > 0 && (
-            <ResultTable
-              columns={["id", "name", "creditAmount"]}
-              data={suppliers}
-              title="Результаты:"
-            />
-          )}
+        </div>
+      )}
+
+      {/* ОТОБРАЖЕНИЕ РЕЗУЛЬТАТОВ - ВСЕГДА ВНИЗУ */}
+      {results.length > 0 && (
+        <div className="mt-6">
+          <ResultTable columns={columns} data={results} title="Результаты:" />
+        </div>
+      )}
+
+      {results.length === 0 && (
+        <div className="mt-6 text-gray-500 text-center p-4 bg-gray-50 rounded-lg">
+          Нет данных. Выполните запрос.
         </div>
       )}
     </div>
